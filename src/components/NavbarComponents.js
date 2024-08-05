@@ -1,7 +1,15 @@
 import React from "react";
-import {Nav, Navbar, NavDropdown, Container} from 'react-bootstrap';
+import { Nav, Navbar, NavDropdown, Container, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 const NavbarComponents = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = (event) => {
+    event.preventDefault();
+    navigate('/login');
+  };
+
   return (
     <Navbar expand="lg" variant="dark">
       <Container>
@@ -23,6 +31,7 @@ const NavbarComponents = () => {
               </NavDropdown.Item>
             </NavDropdown>
           </Nav>
+          <Button variant="outline-light" onClick={handleLogin}>Login</Button>
         </Navbar.Collapse>
       </Container>
     </Navbar>
