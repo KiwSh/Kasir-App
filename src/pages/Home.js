@@ -78,7 +78,6 @@ export default class Home extends Component {
     axios
       .get(API_URL + "keranjangs?product.id=" + value.id)
       .then((res) => {
-        this.getListKeranjang();
         if (res.data.length === 0) {
           const keranjang = {
             jumlah: 1,
@@ -89,6 +88,7 @@ export default class Home extends Component {
           axios
             .post(API_URL + "keranjangs", keranjang)
             .then((res) => {
+              this.getListKeranjang();
               Swal.fire({
                 title: "Berhasil memasukan ke dalam keranjang",
                 text:

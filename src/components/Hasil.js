@@ -25,7 +25,7 @@ export default class Hasil extends Component {
       showModal: true,
       keranjangDetail: menuKeranjang,
       jumlah: menuKeranjang.jumlah,
-      keterangan: menuKeranjang.keterangan,
+      keterangan: menuKeranjang.keterangan || "", // Ensure keterangan is set to an empty string if not present
       totalHarga: menuKeranjang.total_harga,
     });
   };
@@ -132,9 +132,11 @@ export default class Hasil extends Component {
                     </Col>
                     <Col>
                       <h5>{menuKeranjang.product.nama}</h5>
-                      <p>
-                        Rp. {numberWithCommas(menuKeranjang.product.harga)}
-                      </p>
+                      <p>Rp. {numberWithCommas(menuKeranjang.product.harga)}</p>
+                      {/* Display keterangan here */}
+                      {menuKeranjang.keterangan && (
+                        <p className="text-muted">Keterangan: {menuKeranjang.keterangan}</p>
+                      )}
                     </Col>
                     <Col>
                       <strong className="float-right">

@@ -6,23 +6,39 @@ body {
 }
 
 .navbar {
-  background-color: #22668A;
+  background-color: #22668a;
 }
 
 .category-aktif {
-  background-color: #22668A;
+  background-color: #22668a;
   color: white;
 }
 
 .btn-primary {
-  background-color: #22668A;
+  background-color: #22668a;
 }
 
 .form_container {
   width: 30%;
 }
 
-@media only screen and  (max-height: 1000px) {
+
+.menu-card {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.menu-card:hover {
+  transform: scale(1.05);
+}
+
+.menu-card-img {
+  height: 200px;
+  object-fit: cover;
+}
+
+
+@media only screen and (max-height: 1000px) {
   .hasil {
     height: 650px;
   }
@@ -49,18 +65,17 @@ body {
   object-fit: cover; /* Ensure the image covers the area without distortion */
 }
 
-
-@media only screen and  (max-height: 700px) {
+@media only screen and (max-height: 700px) {
   .form_container {
     width: 45%;
   }
 }
 
-.overflow-auto::-webkit-scrollbar{
+.overflow-auto::-webkit-scrollbar {
   display: none;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
