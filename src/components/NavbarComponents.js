@@ -1,6 +1,8 @@
 import React from "react";
 import { Nav, Navbar, NavDropdown, Container, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
 
 const NavbarComponents = () => {
   const navigate = useNavigate();
@@ -10,10 +12,32 @@ const NavbarComponents = () => {
     navigate('/login');
   };
 
+  const handleLogout = () => {
+    // Retrieve user role from cookies
+    const user = JSON.parse(Cookies.get('user') || '{}');
+    const role = user.role || 'User'; // Adjust according to your actual user object
+
+    // Clear cookies or local storage here
+    Cookies.remove('token');
+    Cookies.remove('user');
+    Cookies.remove('permissions');
+
+    // Display logout notification
+    Swal.fire({
+      title: 'Logged Out',
+      text: `${role} has been successfully logged out.`,
+      icon: 'info',
+      button: false,
+    });
+
+    // Redirect to login page or home page
+    navigate('/login');
+  };
+
   return (
     <Navbar expand="lg" variant="dark">
       <Container>
-        <Navbar.Brand href="#home"><strong>Kasir</strong> app</Navbar.Brand>
+        <Navbar.Brand href="/"><strong>Kasir</strong> app</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
@@ -32,6 +56,7 @@ const NavbarComponents = () => {
             </NavDropdown>
           </Nav>
           <Button variant="outline-light" onClick={handleLogin}>Login</Button>
+          <Button variant="outline-light" onClick={handleLogout} className="ms-2">Logout</Button>
         </Navbar.Collapse>
       </Container>
     </Navbar>

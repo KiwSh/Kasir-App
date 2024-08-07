@@ -1,80 +1,73 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { Row, Col, Container } from "react-bootstrap";
 import { Hasil, ListCategories, Menus } from "../components";
 import { API_URL } from "../utils/Constans";
 import axios from "axios";
 import Swal from "sweetalert2";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
-export default class Home extends Component {
-  constructor(props) {
-    super(props);
+const Home = (props) => {
+  const [menus, setMenus] = useState([]);
+  const [categoriYangDipilih, setCategoriYangDipilih] = useState("Makanan");
+  const [keranjangs, setKeranjangs] = useState([]);
 
-    this.state = {
-      menus: [],
-      categoriYangDipilih: "Makanan",
-      keranjangs: [],
-    };
-  }
+  const navigate = useNavigate();
 
-  componentDidMount() {
+  useEffect(() => {
     axios
-      .get(API_URL + "products?category.nama=" + this.state.categoriYangDipilih)
+      .get(API_URL + "products?category.nama=" + categoriYangDipilih)
       .then((res) => {
-        const menus = res.data;
-        this.setState({ menus });
+        setMenus(res.data);
       })
       .catch((error) => {
         console.log("Error ya dek ya", error);
       });
 
-    this.getListKeranjang();
-  }
+    getListKeranjang();
+  }, [categoriYangDipilih]);
 
-  // componentDidUpdate(prevState) {
-  //   if (this.state.keranjangs !== prevState.keranjangs) {
-  //     axios
-  //       .get(API_URL + "keranjangs")
-  //       .then((res) => {
-  //         console.log("cek");
-  //         const keranjangs = res.data;
-  //         this.setState({ keranjangs });
-  //       })
-  //       .catch((error) => {
-  //         console.log("Error ya dek ya", error);
-  //       });
-  //   }
-  // }
-
-  getListKeranjang = () => {
+  const getListKeranjang = () => {
     axios
       .get(API_URL + "keranjangs")
       .then((res) => {
-        const keranjangs = res.data;
-        this.setState({ keranjangs });
-      })
-      .catch((error) => {
-        console.log("Error ya dek ya", error);
-      });
-  }
-
-  changeCategory = (value) => {
-    this.setState({
-      categoriYangDipilih: value,
-      menus: [],
-    });
-
-    axios
-      .get(API_URL + "products?category.nama=" + value)
-      .then((res) => {
-        const menus = res.data;
-        this.setState({ menus });
+        setKeranjangs(res.data);
       })
       .catch((error) => {
         console.log("Error ya dek ya", error);
       });
   };
 
-  masukKeranjang = (value) => {
+  const changeCategory = (value) => {
+    setCategoriYangDipilih(value);
+    setMenus([]);
+
+    axios
+      .get(API_URL + "products?category.nama=" + value)
+      .then((res) => {
+        setMenus(res.data);
+      })
+      .catch((error) => {
+        console.log("Error ya dek ya", error);
+      });
+  };
+
+  const masukKeranjang = (value) => {
+    const token = Cookies.get("token");
+    if (!token) {
+      Swal.fire({
+        title: "Not Logged In",
+        text: "Please log in first before adding items to the cart.",
+        icon: "warning",
+        confirmButtonText: "Login",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
+      });
+      return;
+    }
+
     axios
       .get(API_URL + "keranjangs?product.id=" + value.id)
       .then((res) => {
@@ -87,12 +80,11 @@ export default class Home extends Component {
 
           axios
             .post(API_URL + "keranjangs", keranjang)
-            .then((res) => {
-              this.getListKeranjang();
+            .then(() => {
+              getListKeranjang();
               Swal.fire({
-                title: "Berhasil memasukan ke dalam keranjang",
-                text:
-                  keranjang.product.nama + " berhasil masuk ke dalam keranjang",
+                title: "Added to Cart",
+                text: `${keranjang.product.nama} has been added to the cart.`,
                 icon: "success",
                 button: false,
               });
@@ -109,11 +101,10 @@ export default class Home extends Component {
 
           axios
             .put(API_URL + "keranjangs/" + res.data[0].id, keranjang)
-            .then((res) => {
+            .then(() => {
               Swal.fire({
-                title: "Berhasil memasukan ke dalam keranjang",
-                text:
-                  keranjang.product.nama + " berhasil masuk ke dalam keranjang",
+                title: "Updated in Cart",
+                text: `${keranjang.product.nama} has been updated in the cart.`,
                 icon: "success",
                 button: false,
               });
@@ -128,36 +119,35 @@ export default class Home extends Component {
       });
   };
 
-  render() {
-    const { menus, categoriYangDipilih, keranjangs } = this.state;
-    return (
-        <div className="mt-3">
-          <Container fluid>
-            <Row>
-              <ListCategories
-                changeCategory={this.changeCategory}
-                categoriYangDipilih={categoriYangDipilih}
-              />
-              <Col className="mt-3">
-                <h4>
-                  <strong>Daftar Produk</strong>
-                </h4>
-                <hr />
-                <Row className="overflow-auto menu">
-                  {menus &&
-                    menus.map((menu) => (
-                      <Menus
-                        key={menu.id}
-                        menu={menu}
-                        masukKeranjang={this.masukKeranjang}
-                      />
-                    ))}
-                </Row>
-              </Col>
-              <Hasil keranjangs={keranjangs} {...this.props} getListKeranjang={this.getListKeranjang}/>
+  return (
+    <div className="mt-3">
+      <Container fluid>
+        <Row>
+          <ListCategories
+            changeCategory={changeCategory}
+            categoriYangDipilih={categoriYangDipilih}
+          />
+          <Col className="mt-3">
+            <h4>
+              <strong>Daftar Produk</strong>
+            </h4>
+            <hr />
+            <Row className="overflow-auto menu">
+              {menus &&
+                menus.map((menu) => (
+                  <Menus
+                    key={menu.id}
+                    menu={menu}
+                    masukKeranjang={masukKeranjang}
+                  />
+                ))}
             </Row>
-          </Container>
-        </div>
-    );
-  }
+          </Col>
+          <Hasil keranjangs={keranjangs} {...props} getListKeranjang={getListKeranjang}/>
+        </Row>
+      </Container>
+    </div>
+  );
 }
+
+export default Home;
